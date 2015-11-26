@@ -1,0 +1,51 @@
+﻿body {
+  padding-top: 50px;
+}
+
+.unselectable {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.table tbody>tr>td.vert-align{
+    vertical-align: middle;
+}
+
+.img_wrapper {
+    position: relative;
+}
+
+.material_img_num {
+    position: absolute;
+    top: -12px;
+    right: 6px;
+    color: #ffeeaa;
+    text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black, 0px 0px 2px black, 0px 0px 2px black, 0px 0px 2px black, 0px 0px 2px black;
+    font-size: 14px;
+    cursor: default;
+}
+
+.upgrade_material_not_enough {
+    opacity: 0.4;
+}
+
+.stylish-input-group .input-group-addon{
+    background: white !important; 
+}
+.stylish-input-group .form-control{
+	border-right:0; 
+	box-shadow:0 0 0; 
+	border-color:#ccc;
+}
+.stylish-input-group button{
+    border:0;
+    background:transparent;
+}
+
+.vertical-align {
+    display: flex;
+    align-items: center;
+}
