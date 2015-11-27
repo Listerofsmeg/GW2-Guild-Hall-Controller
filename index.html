@@ -15,6 +15,7 @@
     <script src="Scripts/jquery-1.9.1.js"></script>
     <script src="Scripts/bootstrap.js"></script>
     <script src="Scripts/taffy-min.js"></script>
+    <script src="Scripts/js.cookie.js"></script>
     <script src="Scripts/guild_db.js"></script>
     <script src="Scripts/index.js"></script>
 </head>
@@ -32,8 +33,11 @@
             </div>
             <div id="navbar" class="navbar-collapse collapse">
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a href="#" id="save_link">Save</a></li>
-                    <li><a href="#" id="load_link">Load</a></li>
+                    <li id="nav_signup"><a href="#signup" data-toggle="modal" data-target="#signup_modal">Register</a></li>
+                    <li id="nav_signin"><a href="#login" data-toggle="modal" data-target="#login_modal">Sign in</a></li>
+                    <li id="nav_save"><a href="#save" data-toggle="modal" data-target="#save_modal">Save</a></li>
+                    <li id="nav_load"><a href="#load" data-toggle="modal" data-target="#load_modal">Load</a></li>
+                    <li id="nav_logout"><a href="#logout" data-toggle="modal" data-target="#logout_modal">Logout</a></li>
                 </ul>
             </div>
         </div>
@@ -102,6 +106,99 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- Sign up Modal -->
+    <div class="modal fade bs-modal-sm" id="signup_modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="javascript:register_btn_pressed();">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Sign up</h4>
+                    </div>
+
+                    <div class="modal-body">
+                        <label for="signup_username" class="sr-only">Username</label>
+                        <input type="text" id="signup_username" class="form-control" placeholder="Username" required="" autofocus="">
+                        <label for="signup_password" class="sr-only">Password</label>
+                        <input type="password" id="signup_password" class="form-control" placeholder="Password" required="">
+                        <div id="signup_status"></div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="register_btn">Register</button>
+                    </div>
+                </form>
+            </div>
+        </div>    
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="login_modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="javascript:login_btn_pressed();">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Log in</h4>
+                    </div>
+
+                    <div class="modal-body">
+                        <label for="login_username" class="sr-only">Username</label>
+                        <input type="text" id="login_username" class="form-control" placeholder="Username" required="" autofocus="">
+                        <label for="login_password" class="sr-only">Password</label>
+                        <input type="password" id="login_password" class="form-control" placeholder="Password" required="">
+                        <div id="login_status"></div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="login_btn">Log in</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Modal -->
+    <div class="modal fade" id="save_modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Saving...</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="save_status"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Modal -->
+    <div class="modal fade" id="load_modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Loading...</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="load_status"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Modal -->
+    <div class="modal fade" id="logout_modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Logging out...</h4>
+                </div>
+            </div>
+        </div>
     </div>
 
 </body>

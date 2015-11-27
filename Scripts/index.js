@@ -43,7 +43,7 @@ function load_from_localStorage() {
         var upgrade_name = value[1];
 
         if (done == 1) {
-            upgrade_done(upgrade_name);
+            upgrade_done(upgrade_name, 1);
         }
     });
 
@@ -112,11 +112,14 @@ function update_upgrade_ready() {
     });
 }
 
-function upgrade_done(upgrade_name) {
+// mode: 0 => toggle
+//       1 => done
+//       -1 => undone
+function upgrade_done(upgrade_name, mode) {
     var earned_gxp = guild_db({ Upgrade: upgrade_name }).first().Exp_earned;
     var icon_elem = $(".material[data-upgrade-name='" + upgrade_name + "']").parent().find(".done > .glyphicon");
     // var icon_elem = $(this).find(".glyphicon");
-    if (icon_elem.hasClass("glyphicon-remove")) {
+    if (icon_elem.hasClass("glyphicon-remove") && mode != -1) {
         // Gain GXP
         gxp += earned_gxp;
         // Change icon to done
@@ -124,7 +127,7 @@ function upgrade_done(upgrade_name) {
         icon_elem.addClass("glyphicon-ok");
         // update TAFFYDB
         guild_db({ Upgrade: upgrade_name }).update({ Done: 1 });
-    } else {
+    } else if (icon_elem.hasClass("glyphicon-ok") && mode != 1) {
         // Remove GXP
         gxp -= earned_gxp;
         // Change icon to done
@@ -148,7 +151,7 @@ function upgrade_done(upgrade_name) {
 
 function upgrade_done_click(event) {
     var upgrade_name = event.data.upgrade_name;
-    upgrade_done(upgrade_name);
+    upgrade_done(upgrade_name, 0);
 }
 
 function update_upgrade_row_color() {
@@ -465,6 +468,241 @@ function material_search_input() {
     update_material_need();
 }
 
+var php_url = "http://gw2-ghuc.rhcloud.com/";
+
+function register_btn_pressed() {
+    $("#signup_status").text("");
+
+    var username = $("#signup_username").val();
+    var password = $("#signup_password").val();
+
+    var post_data = {
+        username: username,
+        password: password
+    };
+
+    $("#signup_status").text("Please wait...");
+
+    $.ajax({
+        url: php_url + "signup.php",
+        type: 'post',
+        dataType: 'json',
+        success: function (data) {
+            var result = data.result;
+            if (result == 0) {
+                $("#signup_status").text("You've Successfully Signed up!");
+                setTimeout(function () {
+                    $("#signup_modal").modal("hide");
+                }, 1000);
+            } else if (result == 1) {
+                $("#signup_status").text("This username is already used. Please try another one.");
+            }
+        },
+        data: post_data
+    });
+}
+
+function login_btn_pressed() {
+    $("#login_status").text("");
+
+    var username = $("#login_username").val();
+    var password = $("#login_password").val();
+
+    var post_data = {
+        username: username,
+        password: password
+    };
+
+    $("#login_status").text("Please wait...");
+
+    $.ajax({
+        url: php_url + "login.php",
+        type: 'post',
+        dataType: 'json',
+        success: function (data) {
+            var result = data.result;
+            if (result == 0) {
+                $("#login_status").text("You've Successfully Logged in!");
+
+                Cookies.set('username', username);
+                Cookies.set('password', password);
+
+                setTimeout(function () {
+                    $("#login_modal").modal("hide");
+                    update_login_status();
+                }, 1000);
+            } else if (result == 1) {
+                $("#login_status").text("Your username / password is incorrect. Please try again.");
+            }
+        },
+        data: post_data
+    });
+}
+
+function save_to_server() {
+    // save upgrade list
+    var upgrade_save_str = JSON.stringify(guild_db().select("Done", "Upgrade"));
+
+    // save material list
+    var material_save_list = {};
+
+    $(".material_row").each(function () {
+        var item_id = $(this).data("item-id");
+        var had = $(this).find(".had").val();
+
+        material_save_list[item_id] = had;
+    });
+    var material_save_str = JSON.stringify(material_save_list);
+
+    // ajax
+    var username = Cookies.get("username");
+    var password = Cookies.get("password");
+
+    var post_data = {
+        username: username,
+        password: password,
+        upgrades: upgrade_save_str,
+        materials: material_save_str
+    };
+
+    $.ajax({
+        url: php_url + "save.php",
+        type: 'post',
+        dataType: 'json',
+        success: function (data) {
+            var result = data.result;
+            if (result == 0) {
+                $("#save_status").text("The data is successfully saved.");
+
+                setTimeout(function () {
+                    $("#save_modal").modal("hide");
+                    $("#save_status").text("");
+                }, 1000);
+            } else if (result == 1) {
+                $("#save_status").text("Save error. Please try again later.");
+
+                setTimeout(function () {
+                    $("#save_modal").modal("hide");
+                    $("#save_status").text("");
+                }, 1000);
+            }
+        },
+        data: post_data
+    });
+}
+
+function load_from_server_with_username(username) {
+    var post_data = {
+        username: username
+    };
+
+    $.ajax({
+        url: php_url + "load.php",
+        type: 'post',
+        dataType: 'json',
+        success: function (data) {
+            var result = data.result;
+            if (result == 0) {
+                // load upgrade list
+
+                var upgrade_record_array = JSON.parse(data.upgrades);
+
+                $.each(upgrade_record_array, function (index, value) {
+                    var done = value[0];
+                    var upgrade_name = value[1];
+
+                    if (done == 1) {
+                        upgrade_done(upgrade_name, 1);
+                    }
+                });
+
+                // load material list
+                var material_record_list = JSON.parse(data.materials);
+
+                $.each(material_record_list, function (index, value) {
+                    var item_id = index;
+                    var had = value;
+
+                    $(".material_row[data-item-id='" + item_id.toString() + "']").find(".had").val(had.toString());
+                });
+
+                material_had_change();
+
+                $("#load_status").text("The data is successfully loaded.");
+
+                setTimeout(function () {
+                    $("#load_modal").modal("hide");
+                    $("#load_status").text("");
+                }, 1000);
+            } else if (result == 1) {
+                $("#load_status").text("Load error. Please try again later.");
+
+                setTimeout(function () {
+                    $("#load_modal").modal("hide");
+                    $("#load_status").text("");
+                }, 1000);
+            }
+        },
+        data: post_data
+    });
+}
+
+function load_from_server() {
+    // ajax
+    var username = Cookies.get("username");
+
+    load_from_server_with_username(username);
+}
+
+function logout() {
+    Cookies.remove("username");
+    Cookies.remove("password");
+
+    setTimeout(function () {
+        $("#logout_modal").modal("hide");
+        update_login_status();
+    }, 1000);
+}
+
+function update_login_status() {
+    if (Cookies.get("username") == undefined) {
+        $("#nav_save").hide();
+        $("#nav_load").hide();
+        $("#nav_logout").hide();
+        $("#nav_signup").show();
+        $("#nav_signin").show();
+    } else {
+        $("#nav_save").show();
+        $("#nav_load").show();
+        $("#nav_logout").show();
+        $("#nav_signup").hide();
+        $("#nav_signin").hide();
+    }
+}
+
+var QueryString = function () {
+    // This function is anonymous, is executed immediately and 
+    // the return value is assigned to QueryString!
+    var query_string = {};
+    var query = window.location.search.substring(1);
+    var vars = query.split("&");
+    for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split("=");
+        // If first entry with this name
+        if (typeof query_string[pair[0]] === "undefined") {
+            query_string[pair[0]] = decodeURIComponent(pair[1]);
+            // If second entry with this name
+        } else if (typeof query_string[pair[0]] === "string") {
+            var arr = [query_string[pair[0]], decodeURIComponent(pair[1])];
+            query_string[pair[0]] = arr;
+            // If third or later entry with this name
+        } else {
+            query_string[pair[0]].push(decodeURIComponent(pair[1]));
+        }
+    }
+    return query_string;
+}();
+
 
 $(document).ready(function () {
     update_gxp_bar();
@@ -480,6 +718,26 @@ $(document).ready(function () {
     $(".material_option").click(material_option_btn_click);
     $(".material_search").on("input", material_search_input);
 
-    $("#save_link").click(save_to_localStorage);
-    $("#load_link").click(load_from_localStorage);
+    update_login_status();
+
+    $('#login_modal').on('shown.bs.modal', function () {
+        $('#login_username').focus()
+    })
+    $('#signup_modal').on('shown.bs.modal', function () {
+        $('#signup_username').focus()
+    })
+    $("#save_modal").on("shown.bs.modal", save_to_server);
+    $("#load_modal").on("shown.bs.modal", load_from_server);
+    $("#logout_modal").on("shown.bs.modal", logout);
+
+    // read url
+    if (QueryString.username != undefined) {
+        // logout if logged in
+        Cookies.remove("username");
+        Cookies.remove("password");
+        update_login_status();
+        // load
+        Cookies.set("username", QueryString.username);
+        $("#load_modal").modal("show");
+    }
 });
