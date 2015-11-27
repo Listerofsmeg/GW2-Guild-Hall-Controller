@@ -147,11 +147,52 @@ function upgrade_done(upgrade_name, mode) {
 
     update_material_need();
     update_material_row_color();
+
+    upgrades_tablesort_update_no_sort();
+}
+
+function material_tablesort_update() {
+    $("#material_list").trigger("update");
+    var sorting = $("#material_list").get(0).config.sortList;
+    $("#material_list").trigger("sorton", [sorting]);
+}
+
+function upgrades_tablesort_update_no_sort() {
+    $("#upgrade_list").trigger("update");
 }
 
 function upgrade_done_click(event) {
     var upgrade_name = event.data.upgrade_name;
     upgrade_done(upgrade_name, 0);
+}
+
+// mode: 0 => toggle
+//       1 => done
+//       -1 => undone
+function upgrade_want(upgrade_name, mode) {
+    var icon_elem = $(".material[data-upgrade-name='" + upgrade_name + "']").parent().find(".want > .glyphicon");
+    if (icon_elem.hasClass("glyphicon-remove") && mode != -1) {
+        // Change icon to done
+        icon_elem.removeClass("glyphicon-remove");
+        icon_elem.addClass("glyphicon-ok");
+        // update TAFFYDB
+        guild_db({ Upgrade: upgrade_name }).update({ Want: 1 });
+    } else if (icon_elem.hasClass("glyphicon-ok") && mode != 1) {
+        // Change icon to done
+        icon_elem.removeClass("glyphicon-ok");
+        icon_elem.addClass("glyphicon-remove");
+        // update TAFFYDB
+        guild_db({ Upgrade: upgrade_name }).update({ Want: 0 });
+    }
+
+    update_material_need();
+
+    upgrades_tablesort_update_no_sort();
+}
+
+function upgrade_want_click(event) {
+    var upgrade_name = event.data.upgrade_name;
+    upgrade_want(upgrade_name, 0);
 }
 
 function update_upgrade_row_color() {
@@ -175,12 +216,18 @@ function update_upgrade_row_color() {
 }
 
 function initial_upgrade_list() {
+    // Insert Structure Options
+    $.each(guild_db().distinct("Structure"), function(index, value) {
+        $("#upgrade_structure_opt").append("<button type='button' class='btn btn-primary structure_option'>" + value + "</button>");
+    });
+
     var header = $("#upgrade_list > thead > tr");
     // Insert header bars
-    var header_titles = ["Structure", "Upgrade", "Guild Lv", "Done", "Ready", "GXP", "Aetherium", "Valor", "Gold", "Materials"];
+    var header_titles = ["Structure", "Upgrade", "Guild Lv", "Want", "Done", "Ready", "GXP", "Aetherium", "Valor", "Gold", "Materials"];
     for (var i in header_titles) {
         header.append("<th>" + header_titles[i] + "</th>");
     }
+    $("#upgrade_list > thead > tr > th:last").attr("width", "25%");
 
     // Insert Upgrade List
     var tbody = $("#upgrade_list > tbody");
@@ -207,6 +254,7 @@ function initial_upgrade_list() {
         html_str += "<td class='vert-align'>" + record["Structure"] + "</td>";
         html_str += "<td class='vert-align upgrade_name'>" + record["Upgrade"] + "</td>";
         html_str += "<td class='vert-align'>" + record["LevelRequire"] + "</td>";
+        html_str += "<td class='want vert-align'><span class='glyphicon glyphicon-ok' aria-hidden='true'></span></td>";
         if (done) {
             html_str += "<td class='done vert-align'><span class='glyphicon glyphicon-ok' aria-hidden='true'></span></td>";
         } else {
@@ -227,6 +275,7 @@ function initial_upgrade_list() {
         // tbody.append(html_str);
         var new_row = $(html_str).appendTo(tbody);
         new_row.find(".done").click({ upgrade_name: record["Upgrade"] }, upgrade_done_click);
+        new_row.find(".want").click({ upgrade_name: record["Upgrade"] }, upgrade_want_click);
     });
 
     // materials
@@ -260,7 +309,7 @@ function initial_upgrade_list() {
     // update all img srcs
     var ids = $.unique(total_materials).join();
     if (ids != "") {
-        $.getJSON("https://api.guildwars2.com/v2/items?ids=" + ids, function (data) {
+        $.getJSON("https://api.guildwars2.com/v2/items?lang=en&ids=" + ids, function (data) {
             for (var index in data) {
                 var item = data[index];
                 var item_id = item.id;
@@ -299,7 +348,7 @@ function SortByName(a, b) {
 function initial_material_list() {
     var header = $("#material_list > thead > tr");
     // Insert header bars
-    var header_titles = ["Material", "Needed", "Had"];
+    var header_titles = ["Material", "Price", "Needed", "Had"];
     for (var i in header_titles) {
         header.append("<th>" + header_titles[i] + "</th>");
     }
@@ -314,24 +363,53 @@ function initial_material_list() {
         ids += value[0].toString() + ",";
 
         var tr_elem = $("<tr class='material_row' data-item-id='" + value[0].toString() + "'></tr>").appendTo($("#material_list > tbody"));
-        tr_elem.append("<td class='material_name'></td><td class='needed'>0</td><td><input type='number' min='0' value='0' class='had' /></td>");
+        tr_elem.append("<td class='material_name'></td><td class='material_price vert-align'></td><td class='needed vert-align'>0</td><td class='vert-align'><input type='number' min='0' value='0' class='had' /></td>");
+        var img = new Image();
+        img.setAttribute("height", "40");
+        img.setAttribute("width", "40");
+        var item_name = value[1];
+        var url = encodeURI("http://wiki.guildwars2.com/wiki/" + item_name)
+        tr_elem.find(".material_name").append(img).append("<a href='" + url + "' target='_blank'>" + item_name + "</a>");
     });
     // get material data through JSON
     if (ids != "") {
-        $.getJSON("https://api.guildwars2.com/v2/items?ids=" + ids, function (data) {
+        // get data
+        $.getJSON("https://api.guildwars2.com/v2/items?lang=en&ids=" + ids, function (data) {
             for (var index in data) {
                 var item = data[index];
-
-                var img = new Image();
+                var img_src = item.icon;
                 var item_id = item.id;
-                var item_name = item.name;
-                img.setAttribute("height", "40");
-                img.src = item.icon;
+                var flags = item.flags;
 
                 // insert into material lists
                 var tr_elem = $("tr[data-item-id='" + item_id.toString() + "']");
-                tr_elem.find(".material_name").append(img).append(item_name);
+                tr_elem.find(".material_name > img").attr("src", img_src);
+
+                // check account bound
+                if (flags.indexOf("AccountBound") != -1) {
+                    tr_elem.find(".material_price").text("Account Bound");
+                }
             }
+            $("#material_list").trigger("update");
+        });
+
+        // get price
+        $.getJSON("https://api.guildwars2.com/v2/commerce/prices?ids=" + ids, function (data) {
+            for (var index in data) {
+                var item = data[index];
+                var item_id = item.id;
+                var sell_price = item.sells.unit_price;
+                var buy_price = item.buys.unit_price;
+
+                // insert into material lists
+                var tr_elem = $("tr[data-item-id='" + item_id.toString() + "']");
+                var gold = Math.floor(sell_price / 10000);
+                var silver = Math.floor(sell_price / 100) % 100;
+                var copper = sell_price % 100;
+                tr_elem.find(".material_price").append(gold.toString() + "&nbsp;<img src='/Content/Gold_coin.png' alt='Gold' />&nbsp;" + silver.toString() + "&nbsp;<img src='/Content/Silver_coin.png' alt='Gold' />&nbsp;" + copper.toString() + "&nbsp;<img src='/Content/Copper_coin.png' alt='Gold' />");
+                tr_elem.find(".material_price").data("price", sell_price.toString());
+            }
+            $("#material_list").trigger("update");
         });
     }
 
@@ -371,6 +449,25 @@ function update_material_need() {
             var undone = $(this).find(".done > .glyphicon").hasClass("glyphicon-remove");
 
             if (ready && undone) {
+                var upgrade_name = $(this).find(".upgrade_name").text();
+                material_db({ Upgrade: upgrade_name }).each(function (record, recordnumber) {
+                    var item_id = record["ItemId"];
+                    var item_quantity = record["ItemQuantity"];
+
+                    if (!(item_id in material_needed)) {
+                        material_needed[item_id] = 0;
+                    }
+                    material_needed[item_id] += item_quantity;
+                });
+            }
+        });
+    } else if (material_show_setting == 2) {
+        // search for every want but undone upgrades
+        $("#upgrade_list > tbody > tr").each(function () {
+            var want = $(this).find(".want > .glyphicon").hasClass("glyphicon-ok");
+            var undone = $(this).find(".done > .glyphicon").hasClass("glyphicon-remove");
+
+            if (want && undone) {
                 var upgrade_name = $(this).find(".upgrade_name").text();
                 material_db({ Upgrade: upgrade_name }).each(function (record, recordnumber) {
                     var item_id = record["ItemId"];
@@ -464,6 +561,30 @@ function material_option_btn_click() {
     update_material_row_color();
 }
 
+// mode = -1 : hide
+//        0 : toggle
+//        1 : show
+function toggle_upgrade_row_by_structure(structure_name, mode) {
+
+    var row_elems = $("#upgrade_list > tbody > tr > td:first-child").filter(function () {
+        return $(this).text() == structure_name;
+    }).parent();
+
+    if (mode == 1) {
+        row_elems.show();
+    } else if (mode == -1) {
+        row_elems.hide();
+    } else {
+        row_elems.toggle();
+    }
+}
+
+function structure_option_btn_click() {
+    // toggle the class
+    $(this).toggleClass("btn-default").toggleClass("btn-primary");
+    toggle_upgrade_row_by_structure($(this).text(), 0)
+}
+
 function material_search_input() {
     update_material_need();
 }
@@ -541,7 +662,7 @@ function login_btn_pressed() {
 
 function save_to_server() {
     // save upgrade list
-    var upgrade_save_str = JSON.stringify(guild_db().select("Done", "Upgrade"));
+    var upgrade_save_str = JSON.stringify(guild_db().select("Done", "Upgrade", "Want"));
 
     // save material list
     var material_save_list = {};
@@ -610,9 +731,14 @@ function load_from_server_with_username(username) {
                 $.each(upgrade_record_array, function (index, value) {
                     var done = value[0];
                     var upgrade_name = value[1];
+                    var want = value[2];
 
                     if (done == 1) {
                         upgrade_done(upgrade_name, 1);
+                    }
+
+                    if (want == 0) {
+                        upgrade_want(upgrade_name, -1);
                     }
                 });
 
@@ -715,17 +841,20 @@ $(document).ready(function () {
     update_material_need();
     update_material_row_color();
 
+    $(".structure_option").click(structure_option_btn_click);
     $(".material_option").click(material_option_btn_click);
     $(".material_search").on("input", material_search_input);
+
+    $("#materials_t").on('show.bs.tab', material_tablesort_update);
 
     update_login_status();
 
     $('#login_modal').on('shown.bs.modal', function () {
         $('#login_username').focus()
-    })
+    });
     $('#signup_modal').on('shown.bs.modal', function () {
         $('#signup_username').focus()
-    })
+    });
     $("#save_modal").on("shown.bs.modal", save_to_server);
     $("#load_modal").on("shown.bs.modal", load_from_server);
     $("#logout_modal").on("shown.bs.modal", logout);
@@ -740,4 +869,50 @@ $(document).ready(function () {
         Cookies.set("username", QueryString.username);
         $("#load_modal").modal("show");
     }
+
+    // make the table sortable
+    $("#upgrade_list").tablesorter({
+        headers: {
+            10: { sorter: false }
+        },
+        textExtraction: {
+            3: tablesort_glyphicon_compare,
+            4: tablesort_glyphicon_compare,
+            5: tablesort_glyphicon_compare
+        },
+        sortList: [[2, 0]]
+    });
+    $("#material_list").tablesorter({
+        headers: {
+            1: { sorter: 'digit' },
+            3: { sorter: false }
+        },
+        textExtraction: {
+            0: function (node) {
+                return $(node).text();
+            },
+            1: function (node) {
+                if ($(node).text() == "Account Bound") {
+                    return 999999999;
+                } else {
+                    return parseInt($(node).data("price"));
+                }
+            }
+        },
+        sortList: [[0, 0]]
+    });
+
+    var offset = $('.navbar').height();
+    $('#upgrade_list').stickyTableHeaders({ fixedOffset: offset });
+    $('#material_list').stickyTableHeaders({ fixedOffset: offset });
 });
+
+function tablesort_glyphicon_compare(node) {
+    if ($(node).find(".glyphicon").hasClass("glyphicon-remove")) {
+        return "0";
+    } else if ($(node).find(".glyphicon").hasClass("glyphicon-exclamation-sign")) {
+        return "1";
+    } else {
+        return "2";
+    }
+}
