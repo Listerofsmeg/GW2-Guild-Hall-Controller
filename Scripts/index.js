@@ -406,7 +406,7 @@ function initial_material_list() {
                 var gold = Math.floor(sell_price / 10000);
                 var silver = Math.floor(sell_price / 100) % 100;
                 var copper = sell_price % 100;
-                tr_elem.find(".material_price").append(gold.toString() + "&nbsp;<img src='/Content/Gold_coin.png' alt='Gold' />&nbsp;" + silver.toString() + "&nbsp;<img src='/Content/Silver_coin.png' alt='Gold' />&nbsp;" + copper.toString() + "&nbsp;<img src='/Content/Copper_coin.png' alt='Gold' />");
+                tr_elem.find(".material_price").append(gold.toString() + "&nbsp;<img src='./Content/Gold_coin.png' alt='Gold' />&nbsp;" + silver.toString() + "&nbsp;<img src='./Content/Silver_coin.png' alt='Gold' />&nbsp;" + copper.toString() + "&nbsp;<img src='./Content/Copper_coin.png' alt='Gold' />");
                 tr_elem.find(".material_price").data("price", sell_price.toString());
             }
             $("#material_list").trigger("update");
