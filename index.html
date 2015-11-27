@@ -38,6 +38,7 @@
                     <li id="nav_save"><a href="#save" data-toggle="modal" data-target="#save_modal">Save</a></li>
                     <li id="nav_load"><a href="#load" data-toggle="modal" data-target="#load_modal">Load</a></li>
                     <li id="nav_logout"><a href="#logout" data-toggle="modal" data-target="#logout_modal">Logout</a></li>
+                    <li id="nav_help"><a href="#help" data-toggle="modal" data-target="#help_modal">Help</a></li>
                 </ul>
             </div>
         </div>
@@ -196,6 +197,61 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">Logging out...</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal fade" id="help_modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Help</h4>
+                </div>
+
+                <div class="modal-body">
+                    <h3>Upgrades</h3>
+                    <div>
+                        <ul>
+                            <li>You can click on <strong>Done</strong> to turn the status of each upgrade.</li>
+                            <li>
+                            The ready has 3 status:
+                            <ul>
+                                <li><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> means it's ready to upgrade,</li>
+                                <li><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> means you lack some materials,</li>
+                                <li><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> mean the guild level is not enough or it requires some other upgrades done first.</li>
+                            </ul>
+                            </li>
+                        </ul>
+                    </div>
+                    <h3>Materials</h3>
+                    <div>
+                        <ul>
+                            <li>You can fill the number of each material your guild has.</li>
+                            <li>You can search by the name of the materials. It's case insensitive and the keywords are split by spaces.</li>
+                            <li>There are currently 2 modes to show the materials:
+                            <ul>
+                                <li><strong>Undone</strong> means it will show all materials from every upgrade that is remained undone.</li>
+                                <li><strong>Ready</strong> means it will show only materials from upgrade which is ready to upgrade but lack of materials.</li>
+                                <li><strong>Want</strong> this mode is not implement yet.</li>
+                            </ul>
+                            </li>
+                        </ul>
+                    </div>
+                    <h3>Accounts</h3>
+                    <div>
+                        <ul>
+                            <li>In order to save your record, you need to sign up an account. <strong>Please mind don't use your primary uername/password to signup. This site doesn't use HTTPS.</strong></li>
+                            <li>After you login, you can <strong>SAVE</strong> or <strong>LOAD</strong> your guild hall record.</li>
+                            <li>To share the guild hall record to other players, just use <samp>http://nierrrrrrr.github.io/GW2-Guild-Hall-Controller/?username=</samp><var>your_user_name</var>, for example, if your user name is <kbd>test</kbd>, then use <kbd>http://nierrrrrrr.github.io/GW2-Guild-Hall-Controller/?username=test</kbd> to share your guild hall upgrade record.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
