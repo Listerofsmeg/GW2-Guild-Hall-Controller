@@ -665,7 +665,7 @@ function logout() {
 }
 
 function update_login_status() {
-    if (Cookies.get("username") == undefined) {
+    if (Cookies.get("username") == undefined || Cookies.get("password") == undefined) {
         $("#nav_save").hide();
         $("#nav_load").hide();
         $("#nav_logout").hide();
