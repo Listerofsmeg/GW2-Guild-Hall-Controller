@@ -146,7 +146,7 @@ function upgrade_done(upgrade_name, mode) {
     update_upgrade_material_opacity();
 
     update_material_need();
-    update_material_row_color();
+    update_material_row_color_and_left();
 
     upgrades_tablesort_update_no_sort();
 }
@@ -355,7 +355,7 @@ function SortByName(a, b) {
 function initial_material_list() {
     var header = $("#material_list > thead > tr");
     // Insert header bars
-    var header_titles = ["Material", "Price", "Needed", "Had"];
+    var header_titles = ["Material", "Price", "Needed", "Had", "Left"];
     for (var i in header_titles) {
         header.append("<th>" + header_titles[i] + "</th>");
     }
@@ -370,7 +370,7 @@ function initial_material_list() {
         ids += value[0].toString() + ",";
 
         var tr_elem = $("<tr class='material_row' data-item-id='" + value[0].toString() + "'></tr>").appendTo($("#material_list > tbody"));
-        tr_elem.append("<td class='material_name'></td><td class='material_price vert-align'></td><td class='needed vert-align'>0</td><td class='vert-align'><input type='number' min='0' value='0' class='had' /></td>");
+        tr_elem.append("<td class='material_name'></td><td class='material_price vert-align'></td><td class='needed vert-align'>0</td><td class='vert-align'><input type='number' min='0' value='0' class='had' /></td><td class='left vert-align'></td>");
         var img = new Image();
         img.setAttribute("height", "40");
         img.setAttribute("width", "40");
@@ -522,7 +522,7 @@ function get_material_had(item_id) {
     return parseInt($("#material_list > tbody > tr[data-item-id='" + item_id.toString() + "']").find(".had").val()) || 0;
 }
 
-function update_material_row_color() {
+function update_material_row_color_and_left() {
     $("#material_list > tbody > tr").each(function () {
         $(this).removeClass("info");
         $(this).removeClass("success");
@@ -536,11 +536,13 @@ function update_material_row_color() {
                 $(this).addClass("success");
             }
         }
+		
+		$(this).find(".left").text((needed - had).toString());
     });
 }
 
 function material_had_change() {
-    update_material_row_color();
+    update_material_row_color_and_left();
     update_upgrade_material_opacity();
     update_upgrade_ready();
     update_upgrade_row_color();
@@ -565,7 +567,7 @@ function material_option_btn_click() {
     }
 
     update_material_need();
-    update_material_row_color();
+    update_material_row_color_and_left();
 }
 
 // mode = -1 : hide
@@ -846,7 +848,7 @@ $(document).ready(function () {
     update_upgrade_material_opacity();
 
     update_material_need();
-    update_material_row_color();
+    update_material_row_color_and_left();
 
     $(".structure_option").click(structure_option_btn_click);
     $(".material_option").click(material_option_btn_click);
