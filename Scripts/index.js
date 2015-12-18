@@ -308,7 +308,7 @@ function initial_upgrade_list() {
 
     // update all img srcs
 	if (total_materials.length != 0) {
-		var unique_materials = $.unique(total_materials);
+		var unique_materials = total_materials.filter(only_unique);
 		var current_index = 0;
 		var materials_length = unique_materials.length;
 		var chunk_size = 300;
@@ -326,6 +326,10 @@ function initial_upgrade_list() {
 			});
 		}
 	}
+}
+
+function only_unique(value, index, self) { 
+    return self.indexOf(value) === index;
 }
 
 function update_upgrade_material_opacity() {
