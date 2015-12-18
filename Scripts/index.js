@@ -307,18 +307,25 @@ function initial_upgrade_list() {
     });
 
     // update all img srcs
-    var ids = $.unique(total_materials).join();
-    if (ids != "") {
-        $.getJSON("https://api.guildwars2.com/v2/items?lang=en&ids=" + ids, function (data) {
-            for (var index in data) {
-                var item = data[index];
-                var item_id = item.id;
-                var img_src = item.icon;
+	if (total_materials.length != 0) {
+		var unique_materials = $.unique(total_materials);
+		var current_index = 0;
+		var materials_length = unique_materials.length;
+		var chunk_size = 300;
+		for (; current_index < materials_length; current_index += chunk_size) {
+			var temp_list = unique_materials.slice(current_index, current_index + chunk_size);
+			var ids = temp_list.join();
+			$.getJSON("https://api.guildwars2.com/v2/items?lang=en&ids=" + ids, function (data) {
+				for (var index in data) {
+					var item = data[index];
+					var item_id = item.id;
+					var img_src = item.icon;
 
-                $(".upgrade_material_img[data-item-id='" + item_id.toString() + "']").attr("src", img_src);
-            }
-        });
-    }
+					$(".upgrade_material_img[data-item-id='" + item_id.toString() + "']").attr("src", img_src);
+				}
+			});
+		}
+	}
 }
 
 function update_upgrade_material_opacity() {
