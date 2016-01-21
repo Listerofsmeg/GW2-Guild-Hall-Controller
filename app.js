@@ -642,6 +642,7 @@ var ModalAPILoadContent = React.createClass({
                     <Modal.Title>{Strings.LoadFromAPI}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
+                    <p>You can apply API key from GW2 official website <a href="https://account.arena.net/applications" target="_blank">here</a></p>
                     <Input type="text" placeholder="API key" autoFocus value={this.state.api_key} onChange={this.on_api_key_change} buttonAfter={api_send_btn} />
                     <div>{this.state.api_load_status}</div>
                     <hr />
