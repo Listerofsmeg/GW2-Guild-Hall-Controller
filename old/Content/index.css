@@ -49,21 +49,3 @@
     display: flex;
     align-items: center;
 }
-
-.upgrade_row-enter {
-    opacity: 0.01;
-}
-
-.upgrade_row-enter.upgrade_row-enter-active {
-    opacity: 1;
-    transition: opacity 500ms ease-in;
-}
-
-.upgrade_row-leave {
-    opacity: 1;
-}
-
-.upgrade_row-leave.upgrade_row-leave-active {
-    opacity: 0.01;
-    transition: opacity 300ms ease-in;
-}

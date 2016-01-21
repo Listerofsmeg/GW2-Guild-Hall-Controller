@@ -1,265 +1,28 @@
-﻿<!DOCTYPE html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta charset="UTF-8">
     <title>Guild Hall Upgrade Controller</title>
-
-	<meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" href="Content/bootstrap.css" />
     <link rel="stylesheet" href="Content/bootstrap-theme.css" />
     <link rel="stylesheet" href="Content/index.css" />
     <link rel="stylesheet" href="Content/tablesort/theme.default.css" />
 
-    <script src="Scripts/jquery-1.9.1.js"></script>
-    <script src="Scripts/bootstrap.js"></script>
-    <script src="Scripts/taffy-min.js"></script>
-    <script src="Scripts/js.cookie.js"></script>
-    <script src="Scripts/jquery.tablesorter.min.js"></script>
-    <script src="Scripts/jquery.stickytableheaders.min.js"></script>
-    <script src="Scripts/guild_db.js"></script>
-    <script src="Scripts/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/classnames/2.2.3/index.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react-with-addons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react-dom.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-bootstrap/0.28.2/react-bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ramda/0.19.0/ramda.min.js"></script>
+
+    <script src="./guild_db.js"></script>
+
 </head>
 <body>
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="#">Guild Hall Upgrade Controller</a>
-            </div>
-            <div id="navbar" class="navbar-collapse collapse">
-                <ul class="nav navbar-nav navbar-right">
-                    <li id="nav_signup"><a href="#signup" data-toggle="modal" data-target="#signup_modal">Register</a></li>
-                    <li id="nav_signin"><a href="#login" data-toggle="modal" data-target="#login_modal">Sign in</a></li>
-                    <li id="nav_save"><a href="#save" data-toggle="modal" data-target="#save_modal">Save</a></li>
-                    <li id="nav_load"><a href="#load" data-toggle="modal" data-target="#load_modal">Load</a></li>
-                    <li id="nav_logout"><a href="#logout" data-toggle="modal" data-target="#logout_modal">Logout</a></li>
-                    <li id="nav_help"><a href="#help" data-toggle="modal" data-target="#help_modal">Help</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container">
-
-        <div>
-            <h1>Guild Hall Upgrades</h1>
-            <hr />
-            <!-- Guild Level Bar -->
-            <h2 id="guild_lv"></h2>
-            <div class="progress">
-                <div class="progress-bar" role="progressbar" aria-valuenow="0"
-                     aria-valuemin="0" aria-valuemax="100" style="width:0%"
-                     id="gxp_bar">
-                </div>
-            </div>
-            <hr />
-
-            <!-- tabs -->
-            <ul class="nav nav-tabs">
-                <li class="active"><a data-toggle="tab" href="#upgrade_list_tab" id="upgrades_t">Upgrades</a></li>
-                <li><a data-toggle="tab" href="#materials_tab" id="materials_t">Materials</a></li>
-            </ul>
-
-            <div class="tab-content">
-                <div id="upgrade_list_tab" class="tab-pane fade in active">
-                    <!-- Guild Upgrade Filters -->
-                    <!-- Guild Upgrade Table -->
-                    <h2>Guild Hall Upgrade List</h2>
-                    <div id="upgrade_structure_opt" class="btn-group"></div>
-                    <table class="table table-hover table-condensed tablesorter" id="upgrade_list">
-                        <thead>
-                            <tr></tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-                <div id="materials_tab" class="tab-pane fade">
-                    <!-- Material List -->
-                    <div class="row vertical-align">
-                        <div class="col-sm-4">
-                            <h2>Material List</h2>
-                        </div>
-                        <div class="col-sm-4">
-                            <button type="button" class="btn btn-primary material_option">Undone</button>
-                            <button type="button" class="btn btn-default material_option">Ready</button>
-                            <button type="button" class="btn btn-default material_option">Want</button>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="input-group stylish-input-group">
-                                <input type="text" class="form-control material_search" placeholder="Search">
-                                <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-search"></span>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <table class="table table-hover table-condensed tablesorter" id="material_list">
-                        <thead>
-                            <tr></tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Sign up Modal -->
-    <div class="modal fade bs-modal-sm" id="signup_modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form action="javascript:register_btn_pressed();">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">Sign up</h4>
-                    </div>
-
-                    <div class="modal-body">
-                        <label for="signup_username" class="sr-only">Username</label>
-                        <input type="text" id="signup_username" class="form-control" placeholder="Username" required="" autofocus="">
-                        <label for="signup_password" class="sr-only">Password</label>
-                        <input type="password" id="signup_password" class="form-control" placeholder="Password" required="">
-                        <div id="signup_status"></div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary" id="register_btn">Register</button>
-                    </div>
-                </form>
-            </div>
-        </div>    
-    </div>
-
-    <!-- Login Modal -->
-    <div class="modal fade" id="login_modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form action="javascript:login_btn_pressed();">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">Log in</h4>
-                    </div>
-
-                    <div class="modal-body">
-                        <label for="login_username" class="sr-only">Username</label>
-                        <input type="text" id="login_username" class="form-control" placeholder="Username" required="" autofocus="">
-                        <label for="login_password" class="sr-only">Password</label>
-                        <input type="password" id="login_password" class="form-control" placeholder="Password" required="">
-                        <div id="login_status"></div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary" id="login_btn">Log in</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Save Modal -->
-    <div class="modal fade" id="save_modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Saving...</h4>
-                </div>
-                <div class="modal-body">
-                    <div id="save_status"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Load Modal -->
-    <div class="modal fade" id="load_modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Loading...</h4>
-                </div>
-                <div class="modal-body">
-                    <div id="load_status"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Logout Modal -->
-    <div class="modal fade" id="logout_modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Logging out...</h4>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Help Modal -->
-    <div class="modal fade" id="help_modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Help</h4>
-                </div>
-
-                <div class="modal-body">
-                    <h3>Upgrades</h3>
-                    <div>
-                        <ul>
-                            <li>You can click on the <strong>cell</strong> of <kbd>Done</kbd> or <kbd>Want</kbd> to turn the status of each upgrade.</li>
-                            <li>
-                            The <kbd>Ready</kbd> has 3 status:
-                            <ul>
-                                <li><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> means it's ready to upgrade,</li>
-                                <li><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> means you lack some materials,</li>
-                                <li><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> mean the guild level is not enough or it requires some other upgrades done first.</li>
-                            </ul>
-                            </li>
-                        </ul>
-                    </div>
-                    <h3>Materials</h3>
-                    <div>
-                        <ul>
-                            <li>You can fill the number of each material your guild has.</li>
-                            <li>You can search by the name of the materials. It's case insensitive and the keywords are split by spaces.</li>
-                            <li>There are currently 3 modes to show the materials:
-                            <ul>
-                                <li><strong>Undone</strong> means it will show all materials from every upgrade that is remained undone.</li>
-                                <li><strong>Ready</strong> means it will show only materials from upgrade which is ready to upgrade but lack of materials.</li>
-                                <li><strong>Want</strong> means it will show only materials from upgrade which is want and undone.</li>
-                            </ul>
-                            </li>
-                        </ul>
-                    </div>
-                    <h3>Accounts</h3>
-                    <div>
-                        <ul>
-                            <li>In order to save your record, you need to sign up an account. <strong>Please mind don't use your primary uername/password to signup. This site doesn't use HTTPS.</strong></li>
-                            <li>After you login, you can <strong>SAVE</strong> or <strong>LOAD</strong> your guild hall record.</li>
-                            <li>To share the guild hall record to other players, just use <samp>http://nierrrrrrr.github.io/GW2-Guild-Hall-Controller/?username=</samp><var>your_user_name</var>, for example, if your user name is <kbd>test</kbd>, then use <kbd>http://nierrrrrrr.github.io/GW2-Guild-Hall-Controller/?username=test</kbd> to share your guild hall upgrade record.</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <div id="content"></div>
+    <script type="text/babel" src="app.js"></script>
 </body>
 </html>
