@@ -492,9 +492,9 @@ var ModalHelpContent = React.createClass({
 var ModalAPILoadContent = React.createClass({
     getInitialState: function() {
         return {
-            api_key: "",
+            api_key: "2A7DD814-66B7-2440-AA34-34472168A172038EF12A-C10F-49E1-83A6-11D4EE537C04",
             api_load_status: "",
-            guilds: []
+            guilds: [A99331C3-07DC-E511-80D3-E4115BE8BBE8]
         };
     },
 
